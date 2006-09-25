@@ -111,6 +111,63 @@ void scorestat(double **u, double *v, int *k, double *stat, double *work)
 	}
 }
 
+void h_approx_sim(double *x, double *vinv1, double *vinv2, double *cholv, int *d,
+		  double *logn, int *nsim, double *h)
+/*
+	two term H-approximation of the distribution function of T_S (with BIC with all subsets)
+*/
+{
+	double *norm_iid = (double *) R_alloc(*d,sizeof(double));
+	double *u2 = (double *) R_alloc(*d,sizeof(double));
+	int nalt2=*d*(*d-1)/2;
+	double ***u2alt = (double ***) R_alloc(nalt2,sizeof(double **)); /* array of arrays of pointers; for each alt array of pointers to u2 */
+	int i,j,k;
+	double m1,m2; /* max of one-dimensional and two-dimensional score statistics, respectively */
+	double t;
+	int *p_two = (int *) R_alloc(1,sizeof(int));
+	*p_two=2;
+
+	GetRNGstate();
+	
+	i=0;
+	for (j=0; j<*d-1; j++) {
+		for (k=j+1; k<*d; k++) {
+			u2alt[i] = (double **) R_alloc(2,sizeof(double *));
+			u2alt[i][0] = u2+j;
+			u2alt[i][1] = u2+k;
+			++i;
+		}
+	}
+	
+	*h=0.;
+	for (i=0; i<*nsim; i++) {
+		m1=0.;
+		m2=0.;
+		for (j=0; j<*d; j++) {
+			norm_iid[j]=norm_rand();
+			u2[j]=0.;
+		}
+		/* u2 = t(cholv) %*% norm_iid */
+		for (j=0; j<*d; j++) {
+			for (k=0; k<*d; k++) {
+				u2[j] += cholv[j**d+k]*norm_iid[k];    /* u2[j] = cholv[k,j]*norm_iid[k] */
+			}
+		}
+		for (j=0; j<*d; j++) {
+			t = u2[j]*vinv1[j]*u2[j];
+			if (t > m1) m1=t;
+		}
+		for (j=0; j<nalt2; j++) {
+			scorestat(u2alt[j],vinv2+j*4,p_two,&t,norm_iid); /* using norm_iid as work array */
+			if (t > m2) m2=t;
+		}
+		*h += ((m1<=*x)&&(m2-m1<=*logn)) + ((m2<=*x)&&(m2-m1>*logn));
+	}
+	*h /= (*nsim);
+
+	PutRNGstate();
+}
+
 /*
 	TEST OF THE PH ASSUMPTION BASED ON THE SCORE PROCESS (KS, CM, AD type)
 	called from scoreproptest

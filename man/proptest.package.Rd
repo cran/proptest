@@ -12,8 +12,8 @@ tests for identifying nonproportional covariates.
 \tabular{ll}{
 Package: \tab proptest\cr
 Type: \tab Package\cr
-Version: \tab 0.1-0\cr
-Date: \tab 2006-09-05\cr
+Version: \tab 0.1-1\cr
+Date: \tab 2006-09-25\cr
 License: \tab GPL\cr
 }
 
@@ -46,6 +46,10 @@ Kraus, D. (2006).
 Identifying nonproportional covariates in the Cox model.
 Research Report 2170, Institute of Information Theory and Automation,
 Prague.
+
+Lin, D.Y., Wei, L.J. and Ying, Z. (1993).
+Checking the Cox model with cumulative sums of martingale-based
+residuals. \emph{Biometrika}, \bold{80}, 557--572.
 }
 \keyword{package}
 \keyword{survival}

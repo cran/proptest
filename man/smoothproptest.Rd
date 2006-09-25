@@ -37,10 +37,9 @@ smoothproptest(fit, covariate = 1, dims = 4, basis = "legendre",
   \item{all.subsets}{logical. If \code{TRUE} then the BIC selects out of all
         the nonempty subsets, otherwise only the nested subsets are used.}
   \item{h.approx}{logical. Should we compute the \eqn{p}-value using the
-        \eqn{H}-approximation? This is only valid for nested subsets
-        (\code{all.subsets=FALSE}).}
+        two term \eqn{H}-approximation?}
   \item{sim}{logical. Should we compute the \eqn{p}-value using the
-        simulation approximation?}
+        LWY simulation approximation?}
   \item{nsim}{the number of simulations to be carried out to approximate
         the \eqn{p}-value.}
 }
@@ -52,9 +51,8 @@ basis functions and testing significancy of the new artificial time-dependent
 covariates using the partial likelihood score test.
 
 In the data-driven version, the alternative is selected by a BIC-like rule. The
-distribution of the test statistic then may be approximated by the
-\eqn{H}-approximation if the nested alternatives are used, or by simulations if
-either the nested subsets or all the subsets are used. See Kraus (2005).
+distribution of the test statistic then may be approximated by the two term
+\eqn{H}-approximation (Kraus, 2005) or by simulations (Lin, Wei and Ying, 1993).
 
 The potentially time-varying effects of the covariates that are not tested
 should be modeled as combinations of basis functions too. This makes it possible
@@ -77,7 +75,7 @@ test statistics and \eqn{p}-values computed by various methods (some of them are
         the asymptotic \eqn{\chi^2_d} distribution and on simulations.}
   \item{stat.bic}{the test statistic of the data-driven test.}
   \item{p.bic.h, p.bic.sim, p.bic.chisq1}{the \eqn{p}-value of the data-driven test
-        based on the \eqn{H}-approximation (only for nested alternatives), simulations,
+        based on the \eqn{H}-approximation, simulations,
         and asymptotic \eqn{\chi^2_1} (only for nested alternatives; theoretically
         works, practically not).}
 }
@@ -85,12 +83,16 @@ test statistics and \eqn{p}-values computed by various methods (some of them are
 Kraus, D. (2005).
 Data-driven smooth tests of the proportional hazards assumption.
 Research Report 2134, Institute of Information Theory and Automation,
-Prague.
+Prague. Accepted for publication in \emph{Lifetime Data Anal.}
 
 Kraus, D. (2006).
 Identifying nonproportional covariates in the Cox model.
 Research Report 2170, Institute of Information Theory and Automation,
 Prague.
+
+Lin, D.Y., Wei, L.J. and Ying, Z. (1993).
+Checking the Cox model with cumulative sums of martingale-based
+residuals. \emph{Biometrika}, \bold{80}, 557--572.
 }
 \author{David Kraus, \url{http://www.davidkraus.net/}}
 \seealso{\code{\link{scoreproptest}}, \code{\link{coxph}}}
@@ -119,12 +121,12 @@ print(test1,print.alt=TRUE)   # print details on the alternative models
 test2 = smoothproptest(fit,covariate=2)   # testing Z_2 (proportional)
 print(test2,print.alt=TRUE)   # print details on the alternative models
 
-## Tests using all subsets; now simulations must be used for p-values
+## Tests using all subsets; p-values computed by H-approximation
 
-test1 = smoothproptest(fit,covariate=1,all.subsets=TRUE,sim=TRUE)   # Z_1
+test1 = smoothproptest(fit,covariate=1,all.subsets=TRUE)   # Z_1
 print(test1,print.alt=TRUE)   # print details on the alternative models
 
-test2 = smoothproptest(fit,covariate=2,all.subsets=TRUE,sim=TRUE)   # Z_2
+test2 = smoothproptest(fit,covariate=2,all.subsets=TRUE)   # Z_2
 print(test2,print.alt=TRUE)   # print details on the alternative models
 }
 \keyword{survival}

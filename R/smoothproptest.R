@@ -19,7 +19,7 @@ function(fit,covariate=1,dims=4,basis="legendre",time.transf="F",data.driven=TRU
 	if (attributes(y)$type!="right") stop("data type must be 'right' censored")
 ##	if (all.subsets & (!sim)) stop("when all subsets used, simulations must be done (use sim=TRUE)")
 	if (data.driven && (!h.approx) && (!sim)) stop("at least one of H-approximation (h.approx=TRUE) and simulation (sim=TRUE) must be used")
-	if (!data.driven) h.approx=FALSE   ## || all.subsets (dat warning, ze pro all. se h.approx neda pouzit; casem rovnouzmenit na h.approx=F)
+	if (!data.driven) h.approx=FALSE
 	if (length(dims)==1) {
 		dims=rep(dims,nvar)
 	} else {
@@ -225,21 +225,38 @@ function(fit,covariate=1,dims=4,basis="legendre",time.transf="F",data.driven=TRU
 	} # end of LWY simulation
 
 	if (h.approx) { # two-term approximation H (can be used only for nested alternatives, for all subsets doesn't work)
-		h1 = function(x,n) {
-			(2*pnorm(sqrt(x))-1)*(2*pnorm(sqrt(log(n)))-1)
-		}
-		h2 = function(x,n) {
-			(2*pnorm(sqrt(x))-1)*(2*pnorm(sqrt(log(n)))-1) + 2*(1-pnorm(sqrt(log(n))))
-		}
-		nu = 2 ## 2
-		if (stat.bic<=logn) {
-			p.bic.h = 1-h1(stat.bic,n)
-		} else {
-			if (stat.bic>=nu*logn) {
-				p.bic.h = 1-h2(stat.bic,n)
-			} else {
-				p.bic.h = 1 - ( (nu*logn-stat.bic)/((nu-1)*logn)*h1(logn,n) + (stat.bic-logn)/((nu-1)*logn)*h2(nu*logn,n) )
+		if (!all.subsets) {
+			h1 = function(x,n) {
+				(2*pnorm(sqrt(x))-1)*(2*pnorm(sqrt(log(n)))-1)
 			}
+			h2 = function(x,n) {
+				(2*pnorm(sqrt(x))-1)*(2*pnorm(sqrt(log(n)))-1) + 2*(1-pnorm(sqrt(log(n))))
+			}
+			nu = 2 ## 2
+			if (stat.bic<=logn) {
+				p.bic.h = 1-h1(stat.bic,n)
+			} else {
+				if (stat.bic>=nu*logn) {
+					p.bic.h = 1-h2(stat.bic,n)
+				} else {
+					p.bic.h = 1 - ( (nu*logn-stat.bic)/((nu-1)*logn)*h1(logn,n) + (stat.bic-logn)/((nu-1)*logn)*h2(nu*logn,n) )
+				}
+			}
+		} else { # all subsets
+			V.inv.1 = V.inv[dimalt==1]
+			V.inv.2 = V.inv[dimalt==2]
+			chol.V = chol(solve(V.inv[[1]]))
+			temp=.C("h_approx_sim",
+				as.double(stat.bic),
+				as.double(unlist(V.inv.1)),
+				as.double(unlist(V.inv.2)),
+				as.double(chol.V),
+				as.integer(d),
+				as.double(logn),
+				as.integer(nsim),
+				h=double(1),
+				PACKAGE="proptest")
+			p.bic.h = 1-temp$h
 		}
 	} # end of H approximation
 
@@ -258,10 +275,10 @@ function(fit,covariate=1,dims=4,basis="legendre",time.transf="F",data.driven=TRU
 		wts=wts)
 	if (data.driven) {
 		out$stat = stat.bic
-		out$p = ifelse(sim, p.bic.sim, p.bic.h)
+		out$p = ifelse(h.approx, p.bic.h, p.bic.sim)
 	} else {
 		out$stat = stat.d
-		out$p = ifelse(sim, p.d.sim, p.d.chisqd)
+		out$p = p.d.chisqd
 	}
 
 	out$data.driven = data.driven

@@ -14,3 +14,6 @@ void lwy_smoothproptest(double *u, int *nev, int *nvar, double *djinv, double *v
 		  int *nsim, int *tested, double *stat_d, double *stat_bic, double *logn,
 		  double *pval_d_sim, double *pval_bic_sim, double *wts, double *pval_bic_w);
 
+void h_approx_sim(double *x, double *vinv1, double *vinv2, double *cholv, int *d,
+		  double *logn, int *nsim, double *h);
+
