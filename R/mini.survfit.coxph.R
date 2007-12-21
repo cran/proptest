@@ -94,7 +94,7 @@ function(object) {
 			 n.event=surv$y[ntime,3],
 			 surv=tsurv,
 			 strata= tstrat, ntimes.strata=tstrat,
-			strata.all=strata.all,
+			strata.all=NULL,
 			type=type)
 	}
 

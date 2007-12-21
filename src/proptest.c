@@ -112,7 +112,7 @@ void scorestat(double **u, double *v, int *k, double *stat, double *work)
 }
 
 void h_approx_sim(double *x, double *vinv1, double *vinv2, double *cholv, int *d,
-		  double *logn, int *nsim, double *h)
+		  double *logn, int *nsim, double *h, double *hmax)
 /*
 	two term H-approximation of the distribution function of T_S (with BIC with all subsets)
 */
@@ -140,6 +140,7 @@ void h_approx_sim(double *x, double *vinv1, double *vinv2, double *cholv, int *d
 	}
 	
 	*h=0.;
+	*hmax = 0.;
 	for (i=0; i<*nsim; i++) {
 		m1=0.;
 		m2=0.;
@@ -162,25 +163,29 @@ void h_approx_sim(double *x, double *vinv1, double *vinv2, double *cholv, int *d
 			if (t > m2) m2=t;
 		}
 		*h += ((m1<=*x)&&(m2-m1<=*logn)) + ((m2<=*x)&&(m2-m1>*logn));
+		*hmax += (m1<=*x);
 	}
 	*h /= (*nsim);
+	*hmax /= (*nsim);
 
 	PutRNGstate();
 }
 
 /*
-	TEST OF THE PH ASSUMPTION BASED ON THE SCORE PROCESS (KS, CM, AD type)
+	TEST OF THE PH ASSUMPTION BASED ON THE SCORE PROCESS (KS, CM, AD type) FOR ONE COVARIATE
 	called from scoreproptest
 */
 
-void lwy_scoreproptest(double *u, int *nev, int *nvar, double *imatrow, double *dsigma, double *sigma,
-		       int *firstlast, int *nsim, int *tested, double *statks, double *statcm,
-		       double *statad, double *pks, double *pcm, double *pad, int *nsim_plot,
-		       double *scoreprocess_sim)
+void lwy_scoreproptest(double *du, int *nev, int *nvar, double *l, double *imatrow, double *dsigma,
+		       double *sigma, int *firstlast, int *nsim, int *tested, double *statks,
+		       double *statcm, double *statad, double *pks, double *pcm, double *pad,
+		       int *nsim_plot, double *scoreprocess_sim)
 {
 	double g; /* = (double *) R_alloc(*nev,sizeof(double)); */
 	double *ug = (double *) R_alloc(*nev**nvar,sizeof(double));
+	double *ugend = (double *) R_alloc(*nvar,sizeof(double));
 	double *ugtested = ug+(--*tested)**nev;
+	double *dutested = du+(*tested)**nev;
 	int i,j,b;
 	
 	GetRNGstate();
@@ -192,18 +197,20 @@ void lwy_scoreproptest(double *u, int *nev, int *nvar, double *imatrow, double *
 	*pad=0.;
 	for (b=0; b<*nsim; b++) {
 		g = norm_rand();
+		ugtested[0] = l[0]*dutested[0]*g;
 		for (j=0; j<*nvar; j++) {
-			ug[j**nev+0]=u[j**nev+0]*g; /* *l[0] */
+			ugend[j] = du[j**nev+0]*g;
 		}
 		for (i=1; i<*nev; i++) {
 			g = norm_rand();
+			ugtested[i] = ugtested[i-1]+l[i]*dutested[i]*g;
 			for (j=0; j<*nvar; j++) {
-				ug[j**nev+i]=ug[j**nev+i-1]+u[j**nev+i]*g; /* *l[i]; */
+				ugend[j] += du[j**nev+i]*g;
 			}
 		}
 		for (i=0; i<*nev; i++) {
 			for (j=0; j<*nvar; j++) {
-				ugtested[i] -= imatrow[j**nev+i]*ug[j**nev+*nev-1];
+				ugtested[i] -= imatrow[j**nev+i]*ugend[j]; /* imatrow is already multiplied by l[i] on input */
 			}
 		}
 		
@@ -220,6 +227,61 @@ void lwy_scoreproptest(double *u, int *nev, int *nvar, double *imatrow, double *
 	*pks /= *nsim;
 	*pcm /= *nsim;
 	*pad /= *nsim;
+	
+	PutRNGstate();
+}
+
+/*
+	GLOBAL TEST OF THE PH ASSUMPTION BASED ON THE SCORE PROCESS (based on sup of test process)
+	called from scoreproptest
+*/
+
+void lwy_scoreproptest_global(double *du, int *nev, int *nvar, double *l, double *imatimatendinv,
+			      double *sigmaend, int *nsim, double *stat, double *p, int *nsim_plot,
+			      double *testprocess_sim)
+{
+	double g; /* = (double *) R_alloc(*nev,sizeof(double)); */
+	double *ug = (double *) R_alloc(*nev**nvar,sizeof(double));
+	double *ugend = (double *) R_alloc(*nvar,sizeof(double));
+	int i,j,k,b;
+	
+	GetRNGstate();
+	
+	*p=0.;
+	for (b=0; b<*nsim; b++) {
+		g = norm_rand();
+		for (j=0; j<*nvar; j++) {
+			ugend[j] = du[j**nev+0]*g;
+			ug[j**nev+0] = l[0]*du[j**nev+0]*g;
+		}
+		for (i=1; i<*nev; i++) {
+			g = norm_rand();
+			for (j=0; j<*nvar; j++) {
+				ugend[j] += du[j**nev+i]*g;
+				ug[j**nev+i] = ug[j**nev+i-1]+l[i]*du[j**nev+i]*g; /* *l[i]; */
+			}
+		} // ok
+		for (i=0; i<*nev; i++) { /* at time i */
+			for (j=0; j<*nvar; j++) { /* we are computing the j-th component of ug as ug minus */
+				for (k=0; k<*nvar; k++) { /* the product of the j-th line of imatimatendinv at time i, and ug end */
+					ug[j**nev+i] -= imatimatendinv[i**nvar**nvar+k**nvar+j]*ugend[k];
+				}
+			}
+			ug[i] = fabs(ug[i])/sigmaend[0]; /* simulated test process will be stored in the 1st column of ug */
+			for (j=1; j<*nvar; j++) { /* adding other columns */
+				ug[i] += fabs(ug[j**nev+i])/sigmaend[j];
+			}
+		}
+		
+		if (b<*nsim_plot) {
+			for (i=0; i<*nev; i++) {
+				testprocess_sim[i+b**nev] = ug[i]; /* realisations for plotting */
+			}
+		}
+		
+		*p += (*stat<=ksstat(ug,nev));
+	}
+	*p /= *nsim;
 	
 	PutRNGstate();
 }
