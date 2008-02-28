@@ -96,8 +96,7 @@ A list (an object of class \code{"scoreproptest"}). The most important component
 }
 \references{
 Kraus, D. (2008) Identifying nonproportional covariates in the
-Cox model. \emph{Comm. Statist. Theory Methods} \bold{37}.
-To appear.
+Cox model. \emph{Comm. Statist. Theory Methods} \bold{37}, 617--625.
 
 Lin, D.Y., Wei, L.J. and Ying, Z. (1993)
 Checking the Cox model with cumulative sums of martingale-based

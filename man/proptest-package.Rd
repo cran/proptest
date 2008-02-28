@@ -34,8 +34,7 @@ Kraus, D. (2007) Data-driven smooth tests of the proportional
 hazards assumption. \emph{Lifetime Data Anal.} \bold{13}, 1--16.
 
 Kraus, D. (2008) Identifying nonproportional covariates in the
-Cox model. \emph{Comm. Statist. Theory Methods} \bold{37}.
-To appear.
+Cox model. \emph{Comm. Statist. Theory Methods} \bold{37}, 617--625.
 
 Lin, D.Y., Wei, L.J. and Ying, Z. (1993)
 Checking the Cox model with cumulative sums of martingale-based

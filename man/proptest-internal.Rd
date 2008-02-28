@@ -1,4 +1,4 @@
-\name{surv2sample-internal}
+\name{proptest-internal}
 \alias{mini.survival}
 \alias{mini.agreg.fit}
 \alias{mini.coxph.detail}

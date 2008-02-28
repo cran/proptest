@@ -107,8 +107,7 @@ Kraus, D. (2007b) Neyman's smooth tests in survival analysis.
 PhD thesis. Charles University in Prague, Dept. of Statistics.
 
 Kraus, D. (2008) Identifying nonproportional covariates in the
-Cox model. \emph{Comm. Statist. Theory Methods} \bold{37}.
-To appear.
+Cox model. \emph{Comm. Statist. Theory Methods} \bold{37}, 617--625.
 }
 \author{David Kraus, \url{http://www.davidkraus.net/}}
 \seealso{\code{\link{scoreproptest}}, \code{\link{coxph}}}
