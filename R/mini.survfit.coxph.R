@@ -38,7 +38,7 @@ function(object) {
 		} else
 			stop("Cannot handle \"", type, "\" type survival data")
 
-	if (!is.null(object$x)) x = data$x[ord,]
+	if (!is.null(object$x)) x = object$x[ord,]
 	else x = 0
 	weights = rep(1,n)
 	newstrat = as.integer(rep(0,n))
@@ -60,6 +60,7 @@ function(object) {
 				  y = y[ord,],
 				  as.double(score[ord]),
 				  strata = as.integer(newstrat),
+                          wt = as.double(weights),
 				  surv = double(ndead*n2),
 				  varhaz = double(ndead*n2),
 				  as.double(x),
@@ -88,7 +89,7 @@ function(object) {
 	else {
 		temp = surv$strata[1:(1+surv$strata[1])]
 		tstrat = diff(c(0, temp[-1])) #n in each strata
-		names(tstrat) = levels(data$strata)
+		names(tstrat) = levels(object$strata)
 		temp = list(n=n, time=surv$y[ntime,1],
 			 n.risk=surv$y[ntime,2],
 			 n.event=surv$y[ntime,3],

@@ -34,12 +34,14 @@ function(object) {
 		ndeath= as.integer(ndeath),
 		y = y,
 		as.double(x),
-		as.integer(rep(0,n)), # newstrat
-		index =as.double(score),
+		index = as.integer(rep(0,n)), # newstrat
+		as.double(score),
 		weights = as.double(rep(1,n)), # weights
-		means= c(method=='efron', double(ndeath*nvar)),
+		means= c(method=='efron', double(ndeath*nvar-1)),
 		u = double(ndeath*nvar),
 		i = double(ndeath*nvar*nvar),
+		rmat = as.integer(1),
+		nrisk2 = double(ndeath),
 		double(nvar*(3 + 2*nvar)),
 		PACKAGE="survival")
 	keep = 1:ff$ndeath
