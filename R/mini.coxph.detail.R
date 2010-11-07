@@ -43,7 +43,7 @@ function(object) {
 		rmat = as.integer(1),
 		nrisk2 = double(ndeath),
 		double(nvar*(3 + 2*nvar)),
-		PACKAGE="survival")
+		PACKAGE="proptest")
 	keep = 1:ff$ndeath
 	time = y[ff$index[keep],2]
 	means= (matrix(ff$means,ndeath, nvar))[keep,]

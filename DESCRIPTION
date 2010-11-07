@@ -1,8 +1,8 @@
 Package: proptest
 Type: Package
 Title: Tests of the Proportional Hazards Assumption
-Version: 0.1-4
-Date: 2009-05-19
+Version: 0.1-5
+Date: 2010-11-07
 Author: David Kraus
 Maintainer: David Kraus <david.kraus@matfyz.cz>
 Depends: survival (>= 2.35-4)
@@ -12,6 +12,6 @@ Description: Tests of the proportional hazards assumption in the Cox
         global checks.
 License: GPL (>= 2)
 URL: http://www.davidkraus.net/proptest/
-Packaged: 2009-05-19 14:42:26 UTC; dkraus
+Packaged: 2012-10-29 08:59:31 UTC; ripley
 Repository: CRAN
-Date/Publication: 2009-05-19 16:05:31
+Date/Publication: 2012-10-29 08:59:31

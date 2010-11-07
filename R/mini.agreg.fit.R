@@ -47,7 +47,7 @@ function(x, y, init, control, sort.start, sort.end)
 		double(2*nvar*nvar +nvar*3 + n),
 		as.double(control$eps),
 		as.double(control$toler.chol),
-		sctest=as.double(method=='efron'),PACKAGE="survival" )
+		sctest=as.double(method=='efron'),PACKAGE="proptest" )
 
 	var = matrix(agfit$imat,nvar,nvar)
 	coef = agfit$coef

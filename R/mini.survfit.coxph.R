@@ -69,7 +69,7 @@ function(object) {
 				  double(3*nvar),
 				  as.integer(n2),
 				  as.double(x2),
-				  as.double(newrisk), PACKAGE="survival")
+				  as.double(newrisk), PACKAGE="proptest")
 	nsurv = surv$nsurv[1]
 	ntime = 1:nsurv
 	if (n2>1) {
